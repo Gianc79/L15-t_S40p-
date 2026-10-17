@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ListaSpesa - Percorso Ottimizzato</title>
+  <!-- Tailwind CSS per styling moderno e responsive -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    /* Stili personalizzati per l'evidenziazione delle categorie attive */
+    .cat-btn-active {
+      background-color: #fef08a !important; /* Yellow-200 */
+      border-color: #eab308 !important;     /* Yellow-500 */
+      color: #713f12 !important;          /* Yellow-900 */
+      font-weight: 700 !important;
+      box-shadow: 0 2px 4px rgba(234, 179, 8, 0.25);
+    }
+    /* Rimuove le freccette standard negli input number per pulizia grafica */
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    input[type=number] {
+      -moz-appearance: textfield;
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 antialiased min-h-screen flex flex-col justify-between selection:bg-amber-200 selection:text-amber-900">
+
+  <!-- ==================== HEADER FISSO ==================== -->
+  <header id="app-header" class="sticky top-0 z-30 bg-emerald-600 text-white shadow-md transition-all duration-200">
+    <!-- Header per Schermata 1: Categorie -->
+    <div id="header-categories" class="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
+      <h1 class="text-xl font-bold tracking-tight flex items-center gap-2">
+        <span>🛒</span> ListaSpesa
+      </h1>
+      <div class="flex items-center gap-2">
+        <button onclick="openAddCategoryModal()" class="bg-emerald-500 hover:bg-emerald-400 text-white px-3 py-1.5 rounded-lg text-sm font-semibold flex items-center gap-1 shadow-sm transition active:scale-95">
+          <span>➕</span> <span class="hidden sm:inline">Nuova</span> Cat.
+        </button>
+        <button onclick="navigateTo('shopping-list')" class="bg-amber-400 hover:bg-amber-300 text-amber-950 px-3 py-1.5 rounded-lg text-sm font-bold flex items-center gap-1.5 shadow-sm transition active:scale-95">
+          <span>🛒</span>
+          <span class="hidden sm:inline">Lista</span>
+          <span id="badge-total-cat" class="bg-amber-950 text-amber-300 text-xs px-2 py-0.5 rounded-full font-extrabold">0</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Header per Schermata 2: Prodotti -->
+    <div id="header-products" class="hidden max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
+      <button onclick="navigateTo('categories')" class="bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-1 transition active:scale-95">
+        <span>⬅️</span> Categorie
+      </button>
+      <button onclick="openAddProductModal()" class="bg-emerald-500 hover:bg-emerald-400 text-white px-3 py-1.5 rounded-lg text-sm font-semibold flex items-center gap-1 shadow-sm transition active:scale-95">
+        <span>➕</span> Prodotto
+      </button>
+      <button onclick="navigateTo('shopping-list')" class="bg-amber-400 hover:bg-amber-300 text-amber-950 px-3 py-1.5 rounded-lg text-sm font-bold flex items-center gap-1.5 shadow-sm transition active:scale-95">
+        <span>🛒</span>
+        <span id="badge-total-prod" class="bg-amber-950 text-amber-300 text-xs px-2 py-0.5 rounded-full font-extrabold">0</span>
+      </button>
+    </div>
+
+    <!-- Header per Schermata 3: Lista Spesa -->
+    <div id="header-shopping-list" class="hidden max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
+      <button onclick="navigateTo('categories')" class="bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-1 transition active:scale-95">
+        <span>⬅️</span> Categorie
+      </button>
+      <span class="font-bold text-lg">Riepilogo Spesa</span>
+      <button onclick="clearShoppingList()" class="bg-rose-500 hover:bg-rose-600 text-white px-3 py-1.5 rounded-lg text-sm font-semibold flex items-center gap-1 shadow-sm transition active:scale-95">
+        <span>🗑️</span> <span class="hidden sm:inline">Svuota</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ==================== CONTENUTO PRINCIPALE ==================== -->
+  <main class="max-w-2xl mx-auto w-full flex-1 p-4">
+
+    <!-- SCHERMATA 1: CATEGORIE -->
+    <section id="view-categories" class="space-y-4">
+      <div class="bg-emerald-50 border-l-4 border-emerald-500 p-3 rounded-r-lg shadow-sm">
+        <p class="text-xs sm:text-sm text-emerald-900 font-medium">
+          💡 <strong>Consiglio:</strong> Imposta il numero di sequenza a sinistra di ciascun reparto per riflettere il percorso reale del tuo supermercato.
+        </p>
+      </div>
+
+      <div id="categories-list" class="space-y-2.5">
+        <!-- Renderizzato dinamicamente da JS -->
+      </div>
+    </section>
+
+    <!-- SCHERMATA 2: PRODOTTI CATEGORIA -->
+    <section id="view-products" class="hidden space-y-4">
+      <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
+        <div>
+          <span id="current-cat-seq" class="inline-block bg-slate-100 text-slate-700 text-xs font-bold px-2.5 py-1 rounded-md mb-1 border border-slate-300">
+            Seq: -
+          </span>
+          <h2 id="current-cat-name" class="text-xl font-bold text-slate-800">
+            Nome Categoria
+          </h2>
+        </div>
+        <button onclick="resetCategoryQuantities()" class="text-xs text-rose-600 hover:text-rose-700 font-medium bg-rose-50 px-2.5 py-1.5 rounded-lg border border-rose-200 transition">
+          Azzera reparto
+        </button>
+      </div>
+
+      <div id="products-list" class="space-y-2">
+        <!-- Renderizzato dinamicamente da JS -->
+      </div>
+    </section>
+
+    <!-- SCHERMATA 3: LISTA SPESA (RIEPILOGO) -->
+    <section id="view-shopping-list" class="hidden space-y-4">
+      <div id="shopping-list-content" class="space-y-4">
+        <!-- Renderizzato dinamicamente da JS -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-slate-200 border-t border-slate-300 py-3 text-center text-xs text-slate-500 mt-6">
+    ListaSpesa &bull; Web App Statica Locale
+  </footer>
+
+  <!-- ==================== MODALI / DIALOGS ==================== -->
+
+  <!-- Modal Nuova Categoria -->
+  <div id="modal-add-category" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-5 shadow-xl border border-slate-100 space-y-4">
+      <h3 class="text-lg font-bold text-slate-800">Aggiungi Nuova Categoria</h3>
+      
+      <div>
+        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nome Categoria</label>
+        <input type="text" id="input-new-cat-name" placeholder="Es. SURGELATI" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Numero di Sequenza</label>
+        <input type="number" id="input-new-cat-seq" min="1" placeholder="Es. 10" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="closeModal('modal-add-category')" class="px-4 py-2 text-sm text-slate-600 font-medium hover:bg-slate-100 rounded-lg transition">Annulla</button>
+        <button onclick="saveNewCategory()" class="px-4 py-2 text-sm bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg shadow-sm transition">Salva</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Nuovo Prodotto -->
+  <div id="modal-add-product" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-5 shadow-xl border border-slate-100 space-y-4">
+      <h3 class="text-lg font-bold text-slate-800">Aggiungi Prodotto</h3>
+      <p id="modal-product-cat-name" class="text-xs text-emerald-600 font-semibold -mt-2">In: Categoria</p>
+      
+      <div>
+        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nome Prodotto</label>
+        <input type="text" id="input-new-prod-name" placeholder="Es. Latte Intero" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="closeModal('modal-add-product')" class="px-4 py-2 text-sm text-slate-600 font-medium hover:bg-slate-100 rounded-lg transition">Annulla</button>
+        <button onclick="saveNewProduct()" class="px-4 py-2 text-sm bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg shadow-sm transition">Aggiungi</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Messaggio/Notifica Personale (Sostituisce alert) -->
+  <div id="modal-alert" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-xs w-full p-5 shadow-xl border border-slate-100 space-y-3 text-center">
+      <div id="alert-icon" class="text-3xl">⚠️</div>
+      <p id="alert-message" class="text-sm text-slate-700 font-medium">Messaggio di avviso</p>
+      <button onclick="closeModal('modal-alert')" class="w-full py-2 bg-slate-800 text-white text-sm font-semibold rounded-lg transition hover:bg-slate-700">OK</button>
+    </div>
+  </div>
+
+  <!-- ==================== LOGICA JAVASCRIPT ==================== -->
+  <script>
+    // DATASET INIZIALE PREDEFINITO (~50 Categorie con relativi prodotti)
+    const DEFAULT_DATA = [
+      { id: 'cat-1', name: 'ACCESSORI CASA', sequence: 1, products: ['Spugne', 'Panni Microfibra', 'Pellicola', 'Alluminio'] },
+      { id: 'cat-2', name: 'ACQUA', sequence: 2, products: ['Naturale', 'Frizzante', 'Leggermente Frizzante'] },
+      { id: 'cat-3', name: 'AFFETTATI', sequence: 3, products: ['P. Crudo', 'P. Cotto', 'Fesa Tacchino', 'Salame', 'Speck', 'Mortadella', 'Bresaola', 'Pancetta'] },
+      { id: 'cat-4', name: 'ALCOLICI', sequence: 4, products: ['Grappa', 'Whisky', 'Rum', 'Liqueur'] },
+      { id: 'cat-5', name: 'ALIMENTARI', sequence: 5, products: ['Olio EVOO', 'Olio Semi', 'Aceto', 'Sale Fino', 'Sale Grosso'] },
+      { id: 'cat-6', name: 'APERITIVI', sequence: 6, products: ['Crodino', 'Campari', 'Chips Aperitivo', 'Olive Ripiene'] },
+      { id: 'cat-7', name: 'ARREDAMENTO', sequence: 7, products: ['Cuscini', 'Candele', 'Cornici'] },
+      { id: 'cat-8', name: 'AUTO E BICI', sequence: 8, products: ['Lava Vetri', 'Profumatore Auto', 'Olio Motore'] },
+      { id: 'cat-9', name: 'BABY CARE', sequence: 9, products: ['Pannolini', 'Salviettine', 'Omogeneizzati', 'Biscotti Biberon'] },
+      { id: 'cat-10', name: 'BAZAR', sequence: 10, products: ['Pile AA', 'Batterie AAA', 'Lampadine'] },
+      { id: 'cat-11', name: 'BIRRA', sequence: 11, products: ['Lattina', 'Bottiglia', 'Bionda', 'IPA', 'Rossa'] },
+      { id: 'cat-12', name: 'BISCOTTI', sequence: 12, products: ['Frollini', 'Integrali', 'Al Cioccolato', 'Wafer'] },
+      { id: 'cat-13', name: 'BRESAOLA E SALUMI', sequence: 13, products: ['Bresaola Valtellina', 'Coppa', 'Culattello'] },
+      { id: 'cat-14', name: 'CAFFÈ E TÈ', sequence: 14, products: ['Caffè Macinato', 'Cialde/Capsule', 'Tè Nero', 'Tè Verde', 'Camomilla'] },
+      { id: 'cat-15', name: 'CARNE', sequence: 15, products: ['Macinato', 'Salsiccia', 'Spiedini', 'Hamburger'] },
+      { id: 'cat-16', name: 'CARNE BOVINA', sequence: 16, products: ['Bistecca Fiorentina', 'Filetto', 'Spezzatino', 'Fettine'] },
+      { id: 'cat-17', name: 'CARNE SUINA', sequence: 17, products: ['Braciole', 'Costine', 'Arista', 'Filetto Maiale'] },
+      { id: 'cat-18', name: 'CARTA E PLASTICA', sequence: 18, products: ['Carta Igienica', 'CARTA CUCINA', 'Bicchieri Plastica', 'Piatti Carta'] },
+      { id: 'cat-19', name: 'CEREALI', sequence: 19, products: ['Corn Flakes', 'Muesli', 'Cereali Cioccolato'] },
+      { id: 'cat-20', name: 'FORMAGGI', sequence: 20, products: ['Parmigiano Reggiano', 'Grana Padano', 'Pecorino', 'Gorgonzola', 'Provola'] },
+      { id: 'cat-21', name: 'FORMAGGI FRESCHI', sequence: 21, products: ['Mozzarella', 'Ricotta', 'Stracchino', 'Robiola', 'Crescenza'] },
+      { id: 'cat-22', name: 'FRUTTA', sequence: 22, products: ['Mele', 'Banane', 'Arance', 'Limoni', 'Fragole', 'Uva'] },
+      { id: 'cat-23', name: 'FRUTTA SECCA', sequence: 23, products: ['Noci', 'Mandorle', 'Nocciole', 'Pistacchi', 'Arachidi'] },
+      { id: 'cat-24', name: 'GIARDINAGGIO', sequence: 24, products: ['Terriccio', 'Concime', 'Vasi', 'Semi'] },
+      { id: 'cat-25', name: 'IGIENE PERSONALE', sequence: 25, products: ['Bagnoschiuma', 'Sapone Liquido', 'Shampoo', 'Balsamo', 'Deodorante'] },
+      { id: 'cat-26', name: 'IGIENE ORALE', sequence: 26, products: ['Dentifricio', 'Spazzolino', 'Collutorio', 'Filo Interdentale'] },
+      { id: 'cat-27', name: 'IL CANE E IL GATTO', sequence: 27, products: ['Croccantini Cane', 'Umido Gatto', 'Lettiera Gatto', 'Snack Cane'] },
+      { id: 'cat-28', name: 'LATTE E DERIVATI', sequence: 28, products: ['Latte Intero', 'Latte Parzialmente Scremato', 'Panna da Cucina', 'Panna Montata'] },
+      { id: 'cat-29', name: 'LATTICINI', sequence: 29, products: ['Yogurt Bianco', 'Yogurt Frutta', 'Burro', 'Mascarpone'] },
+      { id: 'cat-30', name: 'LAVAGGIO ABITI', sequence: 30, products: ['Detersivo Lavatrice', 'Ammorbidente', 'Smacchiatore', 'Acchiappacolore'] },
+      { id: 'cat-31', name: 'LEGUMI', sequence: 31, products: ['Fagioli Cannellini', 'Fagioli Borlotti', 'Ceci', 'Lenticchie', 'Piselli'] },
+      { id: 'cat-32', name: 'ORTOFRUTTA', sequence: 32, products: ['Insalata', 'Pomodori', 'Zucchine', 'Carote', 'Patate', 'Cipolle'] },
+      { id: 'cat-33', name: 'PANE E SOSTITUTI', sequence: 33, products: ['Pane Fresco', 'Grissini', 'Crackers', 'Fette Biscottate', 'Piadine'] },
+      { id: 'cat-34', name: 'PASTA E RISO', sequence: 34, products: ['Spaghetti', 'Penne', 'Fusilli', 'Riso Carnaroli', 'Riso Basmati'] },
+      { id: 'cat-35', name: 'PESCHERIA', sequence: 35, products: ['Orata', 'Spigola', 'Gamberi', 'Calamari', 'Cozze'] },
+      { id: 'cat-36', name: 'PIATTI PRONTI', sequence: 36, products: ['Lasagne', 'Insalata di Riso', 'Pollo Arrosto'] },
+      { id: 'cat-37', name: 'PIZZE E SURGELATI', sequence: 37, products: ['Pizza Margherita', 'Pizza 4 Formaggi', 'Focaccia'] },
+      { id: 'cat-38', name: 'PRODOTTI DA FORNO', sequence: 38, products: ['Plumcake', 'Croissant', 'Ttortine'] },
+      { id: 'cat-39', name: 'PULIZIA CASA', sequence: 39, products: ['Detersivo Piatti', 'Pastiglie Lavastoviglie', 'Sgrassatore', 'Alcol'] },
+      { id: 'cat-40', name: 'SALMONE E PESCE CONSERVATO', sequence: 40, products: ['Salmone Affumicato', 'Tonnno in Scatola', 'Sgombro', 'Acciughe'] },
+      { id: 'cat-41', name: 'SALUMI E AFFETTATI', sequence: 41, products: ['Salame Milano', 'Prosciutto Cotto Alta Qualità', 'Salsiccia Secca'] },
+      { id: 'cat-42', name: 'SNACK E PATATINE', sequence: 42, products: ['Patatine Classiche', 'Popcorn', 'Pretzels', 'Arachidi Salate'] },
+      { id: 'cat-43', name: 'SALSE E CONDIMENTI', sequence: 43, products: ['Maionese', 'Ketchup', 'Senape', 'Pesto alla Genovese', 'Salsa di Pomodoro'] },
+      { id: 'cat-44', name: 'SPEZIE', sequence: 44, products: ['Pepe Nero', 'Origano', 'Ramerino', 'Curcuma', 'Peperoncino'] },
+      { id: 'cat-45', name: 'SURGELATI', sequence: 45, products: ['Bastoncini Pesce', 'Verdure Miste', 'Patatine da Forno', 'Gelato'] },
+      { id: 'cat-46', name: 'UOVA', sequence: 46, products: ['Uova Allevamento a Terra (6)', 'Uova Biologiche (6)'] },
+      { id: 'cat-47', name: 'VINO', sequence: 47, products: ['Vino Rosso', 'Vino Bianco', 'Prosecco', 'Spumante'] },
+      { id: 'cat-48', name: 'ZUCCHERO E DOLCIFICANTI', sequence: 48, products: ['Zucchero Semolato', 'Zucchero di Canna', 'Stevia', 'Miele'] }
+    ];
+
+    // STRUTTURA DATI DI STATO
+    let categoriesState = [];
+    let currentCategoryId = null;
+    let checkedProducts = {}; // Mantiene lo stato spuntato nella Lista Spesa
+
+    // INIZIALIZZAZIONE
+    window.onload = function() {
+      loadState();
+      renderCategories();
+      updateTotalBadges();
+    };
+
+    // LOCAL STORAGE: CARICAMENTO E SALVATAGGIO
+    function loadState() {
+      const savedCategories = localStorage.getItem('listaSpesa_categories');
+      const savedChecked = localStorage.getItem('listaSpesa_checked');
+
+      if (savedCategories) {
+        try {
+          categoriesState = JSON.parse(savedCategories);
+        } catch (e) {
+          console.error("Errore nel parsing del localStorage, ripristino predefiniti.", e);
+          initDefaultData();
+        }
+      } else {
+        initDefaultData();
+      }
+
+      if (savedChecked) {
+        try {
+          checkedProducts = JSON.parse(savedChecked);
+        } catch (e) {
+          checkedProducts = {};
+        }
+      }
+    }
+
+    function initDefaultData() {
+      // Mappa il dataset iniziale strutturando i prodotti con id e quantità
+      categoriesState = DEFAULT_DATA.map((cat) => ({
+        id: cat.id,
+        name: cat.name,
+        sequence: parseInt(cat.sequence) || 1,
+        products: cat.products.map((pName, pIdx) => ({
+          id: `${cat.id}-p${pIdx + 1}`,
+          name: pName,
+          qty: 0,
+          custom: false
+        }))
+      }));
+      saveState();
+    }
+
+    function saveState() {
+      localStorage.setItem('listaSpesa_categories', JSON.stringify(categoriesState));
+      localStorage.setItem('listaSpesa_checked', JSON.stringify(checkedProducts));
+      updateTotalBadges();
+    }
+
+    // NAVIGAZIONE SCHERMATE
+    function navigateTo(view) {
+      document.getElementById('view-categories').classList.add('hidden');
+      document.getElementById('view-products').classList.add('hidden');
+      document.getElementById('view-shopping-list').classList.add('hidden');
+
+      document.getElementById('header-categories').classList.add('hidden');
+      document.getElementById('header-products').classList.add('hidden');
+      document.getElementById('header-shopping-list').classList.add('hidden');
+
+      if (view === 'categories') {
+        renderCategories();
+        document.getElementById('view-categories').classList.remove('hidden');
+        document.getElementById('header-categories').classList.remove('hidden');
+      } else if (view === 'products') {
+        renderProducts();
+        document.getElementById('view-products').classList.remove('hidden');
+        document.getElementById('header-products').classList.remove('hidden');
+      } else if (view === 'shopping-list') {
+        renderShoppingList();
+        document.getElementById('view-shopping-list').classList.remove('hidden');
+        document.getElementById('header-shopping-list').classList.remove('hidden');
+      }
+
+      window.scrollTo(0, 0);
+    }
+
+    // UTILITY: CALCOLO TOTALE PRODOTTI SELEZIONATI
+    function getTotalSelectedCount() {
+      let count = 0;
+      categoriesState.forEach(cat => {
+        cat.products.forEach(p => {
+          if (p.qty > 0) count += p.qty;
+        });
+      });
+      return count;
+    }
+
+    function updateTotalBadges() {
+      const total = getTotalSelectedCount();
+      document.getElementById('badge-total-cat').innerText = total;
+      document.getElementById('badge-total-prod').innerText = total;
+    }
+
+    // ==================== SCHERMATA 1: CATEGORIE ====================
+    function renderCategories() {
+      const container = document.getElementById('categories-list');
+      container.innerHTML = '';
+
+      // Ordina SEMPRE le categorie in ORDINE ALFABETICO per la schermata iniziale
+      const sortedCategories = [...categoriesState].sort((a, b) => a.name.localeCompare(b.name, 'it', { sensitivity: 'base' }));
+
+      sortedCategories.forEach(cat => {
+        // Verifica se ci sono prodotti con qty > 0
+        const hasSelectedProducts = cat.products.some(p => p.qty > 0);
+        const selectedCount = cat.products.reduce((acc, p) => acc + (p.qty > 0 ? p.qty : 0), 0);
+
+        const card = document.createElement('div');
+        card.className = 'flex items-center gap-2 bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm hover:border-slate-300 transition';
+
+        // Modifica campo sequenza + Bottone Categoria
+        card.innerHTML = `
+          <div class="flex items-center gap-1">
+            <label class="sr-only">Sequenza per ${escapeHtml(cat.name)}</label>
+            <input 
+              type="number" 
+              min="1" 
+              value="${cat.sequence}" 
+              onchange="updateCategorySequence('${cat.id}', this.value)"
+              class="w-12 h-11 text-center font-bold text-slate-700 bg-slate-100 border border-slate-300 rounded-lg focus:bg-white focus:ring-2 focus:ring-emerald-500 text-sm"
+              title="Posizione/Sequenza"
+            />
+          </div>
+          
+          <button 
+            onclick="openCategoryProducts('${cat.id}')" 
+            class="flex-1 h-11 px-4 rounded-lg border text-left font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100 flex items-center justify-between transition active:scale-[0.99] ${hasSelectedProducts ? 'cat-btn-active' : 'border-slate-200'}"
+          >
+            <span class="truncate">${escapeHtml(cat.name)}</span>
+            ${hasSelectedProducts ? `<span class="bg-amber-950 text-amber-200 text-xs px-2 py-0.5 rounded-full font-extrabold">${selectedCount}</span>` : ''}
+          </button>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    function updateCategorySequence(catId, newSeq) {
+      const seqVal = parseInt(newSeq);
+      if (isNaN(seqVal) || seqVal < 1) return;
+      
+      const cat = categoriesState.find(c => c.id === catId);
+      if (cat) {
+        cat.sequence = seqVal;
+        saveState();
+      }
+    }
+
+    function openCategoryProducts(catId) {
+      currentCategoryId = catId;
+      navigateTo('products');
+    }
+
+    // ==================== SCHERMATA 2: PRODOTTI ====================
+    function renderProducts() {
+      const cat = categoriesState.find(c => c.id === currentCategoryId);
+      if (!cat) return navigateTo('categories');
+
+      document.getElementById('current-cat-name').innerText = cat.name;
+      document.getElementById('current-cat-seq').innerText = `Sequenza: #${cat.sequence}`;
+
+      const container = document.getElementById('products-list');
+      container.innerHTML = '';
+
+      if (cat.products.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-8 text-slate-400 bg-white rounded-xl border border-dashed border-slate-300">
+            <p class="text-sm font-medium">Nessun prodotto in questa categoria.</p>
+            <button onclick="openAddProductModal()" class="mt-2 text-xs bg-emerald-100 text-emerald-700 px-3 py-1.5 rounded-lg font-bold">➕ Aggiungi il primo prodotto</button>
+          </div>
+        `;
+        return;
+      }
+
+      cat.products.forEach(product => {
+        const row = document.createElement('div');
+        row.className = `flex items-center justify-between p-3 bg-white rounded-xl border shadow-sm transition ${product.qty > 0 ? 'border-amber-300 bg-amber-50/30' : 'border-slate-200'}`;
+
+        row.innerHTML = `
+          <div class="flex items-center gap-2 flex-1 pr-2 min-w-0">
+            <span class="font-medium text-slate-800 text-sm sm:text-base truncate">${escapeHtml(product.name)}</span>
+            ${product.custom ? `
+              <button onclick="deleteProduct('${cat.id}', '${product.id}')" class="text-xs text-slate-400 hover:text-rose-500 p-1" title="Elimina prodotto">
+                🗑️
+              </button>
+            ` : ''}
+          </div>
+
+          <!-- Stepper Quantità -->
+          <div class="flex items-center bg-slate-100 border border-slate-300 rounded-lg p-0.5 shadow-inner">
+            <button 
+              onclick="changeQty('${cat.id}', '${product.id}', -1)"
+              class="w-9 h-9 flex items-center justify-center font-bold text-slate-700 hover:bg-slate-200 rounded-md active:scale-90 transition"
+            >
+              -
+            </button>
+            <input 
+              type="number" 
+              min="0" 
+              value="${product.qty}"
+              onchange="setQty('${cat.id}', '${product.id}', this.value)"
+              class="w-10 h-9 text-center font-bold text-slate-800 bg-transparent focus:outline-none text-sm"
+            />
+            <button 
+              onclick="changeQty('${cat.id}', '${product.id}', 1)"
+              class="w-9 h-9 flex items-center justify-center font-bold text-slate-700 hover:bg-slate-200 rounded-md active:scale-90 transition"
+            >
+              +
+            </button>
+          </div>
+        `;
+
+        container.appendChild(row);
+      });
+    }
+
+    function changeQty(catId, prodId, delta) {
+      const cat = categoriesState.find(c => c.id === catId);
+      if (!cat) return;
+      const prod = cat.products.find(p => p.id === prodId);
+      if (prod) {
+        prod.qty = Math.max(0, prod.qty + delta);
+        saveState();
+        renderProducts();
+      }
+    }
+
+    function setQty(catId, prodId, value) {
+      const val = parseInt(value);
+      if (isNaN(val) || val < 0) return;
+      const cat = categoriesState.find(c => c.id === catId);
+      if (!cat) return;
+      const prod = cat.products.find(p => p.id === prodId);
+      if (prod) {
+        prod.qty = val;
+        saveState();
+        renderProducts();
+      }
+    }
+
+    function deleteProduct(catId, prodId) {
+      const cat = categoriesState.find(c => c.id === catId);
+      if (!cat) return;
+      cat.products = cat.products.filter(p => p.id !== prodId);
+      saveState();
+      renderProducts();
+    }
+
+    function resetCategoryQuantities() {
+      const cat = categoriesState.find(c => c.id === currentCategoryId);
+      if (!cat) return;
+      cat.products.forEach(p => p.qty = 0);
+      saveState();
+      renderProducts();
+    }
+
+    // ==================== SCHERMATA 3: LISTA SPESA (ORDINATA PER SEQUENZA) ====================
+    function renderShoppingList() {
+      const container = document.getElementById('shopping-list-content');
+      container.innerHTML = '';
+
+      // 1. Filtra categorie che hanno prodotti selezionati (qty > 0)
+      const activeCategories = categoriesState.filter(cat => 
+        cat.products.some(p => p.qty > 0)
+      );
+
+      if (activeCategories.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-12 bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-3">
+            <div class="text-5xl">🛒</div>
+            <h3 class="text-lg font-bold text-slate-700">La tua lista della spesa è vuota</h3>
+            <p class="text-xs text-slate-500">Seleziona i prodotti che desideri acquistare dalle categorie per trovarli qui ordinati per percorso.</p>
+            <button onclick="navigateTo('categories')" class="mt-3 px-4 py-2 bg-emerald-600 text-white rounded-lg font-semibold text-sm shadow hover:bg-emerald-700 transition">
+              Vai alle Categorie
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      // 2. REQUISITO FONDAMENTALE: Ordina le categorie attive in base al NUMERO DI SEQUENZA CRESCENTE
+      activeCategories.sort((a, b) => a.sequence - b.sequence);
+
+      // 3. Genera la vista
+      activeCategories.forEach(cat => {
+        const catBox = document.createElement('div');
+        catBox.className = 'bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden';
+
+        const selectedProducts = cat.products.filter(p => p.qty > 0);
+
+        let productsHtml = '';
+        selectedProducts.forEach(prod => {
+          const isChecked = !!checkedProducts[prod.id];
+          productsHtml += `
+            <label class="flex items-center justify-between p-3 border-b last:border-b-0 border-slate-100 hover:bg-slate-50 cursor-pointer select-none">
+              <div class="flex items-center gap-3 min-w-0 flex-1">
+                <input 
+                  type="checkbox" 
+                  ${isChecked ? 'checked' : ''} 
+                  onchange="toggleCheckProduct('${prod.id}')"
+                  class="w-5 h-5 accent-emerald-600 rounded cursor-pointer"
+                />
+                <span class="text-sm font-medium text-slate-800 ${isChecked ? 'line-through text-slate-400' : ''} truncate">
+                  ${escapeHtml(prod.name)}
+                </span>
+              </div>
+              <span class="text-xs font-extrabold bg-amber-100 text-amber-900 px-2.5 py-1 rounded-md ml-2 border border-amber-200">
+                x${prod.qty}
+              </span>
+            </label>
+          `;
+        });
+
+        catBox.innerHTML = `
+          <div class="bg-slate-100 px-4 py-2.5 border-b border-slate-200 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="bg-emerald-600 text-white text-xs font-black px-2 py-0.5 rounded-md shadow-sm">
+                #${cat.sequence}
+              </span>
+              <h3 class="font-bold text-slate-800 text-sm sm:text-base">${escapeHtml(cat.name)}</h3>
+            </div>
+            <span class="text-xs text-slate-500 font-semibold">${selectedProducts.length} art.</span>
+          </div>
+          <div class="divide-y divide-slate-100">
+            ${productsHtml}
+          </div>
+        `;
+
+        container.appendChild(catBox);
+      });
+    }
+
+    function toggleCheckProduct(prodId) {
+      checkedProducts[prodId] = !checkedProducts[prodId];
+      saveState();
+      renderShoppingList();
+    }
+
+    function clearShoppingList() {
+      if (getTotalSelectedCount() === 0) return;
+      
+      // Svuota tutte le quantità
+      categoriesState.forEach(cat => {
+        cat.products.forEach(p => p.qty = 0);
+      });
+      checkedProducts = {};
+      saveState();
+      renderShoppingList();
+    }
+
+    // ==================== MODALI E GESTIONE AZIONI ====================
+    function openAddCategoryModal() {
+      document.getElementById('input-new-cat-name').value = '';
+      // Imposta come sequenza predefinita il valore massimo corrente + 1
+      const maxSeq = categoriesState.reduce((max, c) => c.sequence > max ? c.sequence : max, 0);
+      document.getElementById('input-new-cat-seq').value = maxSeq + 1;
+      document.getElementById('modal-add-category').classList.remove('hidden');
+    }
+
+    function saveNewCategory() {
+      const nameInput = document.getElementById('input-new-cat-name').value.trim();
+      const seqInput = parseInt(document.getElementById('input-new-cat-seq').value);
+
+      if (!nameInput) {
+        showCustomAlert("Inserisci un nome valido per la categoria.");
+        return;
+      }
+      if (isNaN(seqInput) || seqInput < 1) {
+        showCustomAlert("Inserisci un numero di sequenza maggiore di zero.");
+        return;
+      }
+
+      // Genera id unico
+      const newId = 'cat-' + Date.now();
+      categoriesState.push({
+        id: newId,
+        name: nameInput.toUpperCase(),
+        sequence: seqInput,
+        products: []
+      });
+
+      saveState();
+      closeModal('modal-add-category');
+      renderCategories();
+    }
+
+    function openAddProductModal() {
+      const cat = categoriesState.find(c => c.id === currentCategoryId);
+      if (!cat) return;
+
+      document.getElementById('modal-product-cat-name').innerText = `In: ${cat.name}`;
+      document.getElementById('input-new-prod-name').value = '';
+      document.getElementById('modal-add-product').classList.remove('hidden');
+    }
+
+    function saveNewProduct() {
+      const prodName = document.getElementById('input-new-prod-name').value.trim();
+      if (!prodName) {
+        showCustomAlert("Inserisci un nome per il prodotto.");
+        return;
+      }
+
+      const cat = categoriesState.find(c => c.id === currentCategoryId);
+      if (cat) {
+        const newProdId = `${cat.id}-pcustom-${Date.now()}`;
+        cat.products.push({
+          id: newProdId,
+          name: prodName,
+          qty: 0,
+          custom: true
+        });
+
+        saveState();
+        closeModal('modal-add-product');
+        renderProducts();
+      }
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.add('hidden');
+    }
+
+    function showCustomAlert(msg) {
+      document.getElementById('alert-message').innerText = msg;
+      document.getElementById('modal-alert').classList.remove('hidden');
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/[&<>"']/g, function(m) {
+        return {
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#039;'
+        }[m];
+      });
+    }
+  </script>
+</body>
+</html>
