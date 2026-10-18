@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ListaSpesa v1.10</title>
+  <title>ListaSpesa v1.11</title>
   <style>
     :root {
       --primary-color: #2c3e50;
@@ -455,12 +455,12 @@
         <div class="action-bar-top">
           <span>Gestione Dati & Reparti</span>
         </div>
-        <div class="action-buttons-grid" style="grid-template-columns: repeat(3, 1fr);">
+        <div class="action-buttons-grid">
           <button class="nav-btn secondary" onclick="saveExistingFile()" title="Salva sovrascrivendo il file attivo">💾 Salva</button>
           <button class="nav-btn secondary" onclick="triggerImport()" title="Carica file esistente">📂 Importa</button>
-          <input type="file" id="import-file-input" style="display:none" accept=".json" onchange="importData(event)">
           <button class="nav-btn success" onclick="openAddCategoryModal()">➕ Nuova Categoria</button>
         </div>
+        <input type="file" id="import-file-input" style="display:none" accept=".json" onchange="importData(event)">
       </div>
       <div id="categories-container" class="category-list"></div>
     </section>
@@ -607,9 +607,15 @@
 
     function loadData() {
       try {
-        const saved = localStorage.getItem('listaSpesaData_v11');
+        // Cerca prima nei dati correnti, poi esegue il fallback sulle versioni precedenti per non perdere nulla
+        const saved = localStorage.getItem('listaSpesaData_v11') || localStorage.getItem('listaSpesaData_v10') || localStorage.getItem('listaSpesaData_v9');
         if (saved) {
-          appData = JSON.parse(saved);
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            appData = parsed;
+          } else {
+            appData = buildDefaultData();
+          }
         } else {
           appData = buildDefaultData();
           saveData();
@@ -636,7 +642,6 @@
           alert("File sovrascritto con successo!");
           return;
         } catch (err) {
-          console.warn("Impossibile sovrascrivere direttamente, richiedo nuovo percorso.", err);
           activeFileHandle = null;
         }
       }
@@ -645,157 +650,4 @@
     }
 
     async function saveAsNewFile() {
-      const dataStr = JSON.stringify(appData, null, 2);
-
-      if (window.showSaveFilePicker) {
-        try {
-          const options = {
-            suggestedName: 'backup_listaspesa.json',
-            types: [{
-              description: 'File JSON',
-              accept: { 'application/json': ['.json'] },
-            }],
-          };
-          activeFileHandle = await window.showSaveFilePicker(options);
-          const writable = await activeFileHandle.createWritable();
-          await writable.write(dataStr);
-          await writable.close();
-          alert("File salvato con successo!");
-          return;
-        } catch (err) {
-          if (err.name !== 'AbortError') {
-            console.warn("API File System non disponibile, uso download.", err);
-          } else {
-            return;
-          }
-        }
-      }
-
-      try {
-        const blob = new Blob([dataStr], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const downloadAnchor = document.createElement('a');
-        downloadAnchor.href = url;
-        downloadAnchor.download = 'backup_listaspesa.json';
-        document.body.appendChild(downloadAnchor);
-        downloadAnchor.click();
-        downloadAnchor.remove();
-        URL.revokeObjectURL(url);
-      } catch (e) {
-        alert("Errore durante il salvataggio dei dati.");
-      }
-    }
-
-    function triggerImport() {
-      document.getElementById('import-file-input').click();
-    }
-
-    function importData(event) {
-      const fileReader = new FileReader();
-      if (event.target.files && event.target.files[0]) {
-        fileReader.readAsText(event.target.files[0], "UTF-8");
-        fileReader.onload = (e) => {
-          try {
-            const imported = JSON.parse(e.target.result);
-            if (Array.isArray(imported)) {
-              appData = imported;
-              saveData();
-              activeFileHandle = null;
-              renderScreen('categories');
-              alert("Dati importati con successo!");
-            } else {
-              alert("File di backup non valido.");
-            }
-          } catch (err) {
-            alert("Errore durante la lettura del file.");
-          }
-          event.target.value = '';
-        };
-      }
-    }
-
-    function renderScreen(screenName = 'categories', categoryId = null, highlightCatId = null) {
-      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-      const header = document.getElementById('main-header');
-
-      if (screenName === 'categories') {
-        document.getElementById('screen-categories').classList.add('active');
-        const totalSelected = getTotalSelectedCount();
-        
-        header.innerHTML = `
-          <h1>📋 Categorie (v1.10)</h1>
-          <button class="nav-btn" onclick="renderScreen('summary')">
-            🛒 Lista Spesa ${totalSelected > 0 ? `(${totalSelected})` : ''}
-          </button>
-        `;
-        renderCategoriesList(highlightCatId);
-
-        if (categoryScrollPosition > 0) {
-          window.scrollTo({ top: categoryScrollPosition, behavior: 'instant' });
-        }
-
-      } else if (screenName === 'products') {
-        categoryScrollPosition = window.scrollY || document.documentElement.scrollTop;
-        currentCategoryId = categoryId;
-        lastActiveCategoryCardId = categoryId;
-
-        document.getElementById('screen-products').classList.add('active');
-        const cat = appData.find(c => c.id === categoryId);
-        const totalSelected = getTotalSelectedCount();
-
-        header.innerHTML = `
-          <button class="nav-btn secondary" onclick="renderScreen('categories', null, '${cat ? cat.id : ''}')">⬅️ Categorie</button>
-          <h1>${cat ? cat.name : 'Prodotti'}</h1>
-          <div style="display:flex; gap:6px;">
-            <button class="nav-btn success" onclick="openAddProductModal()">➕</button>
-            <button class="nav-btn" onclick="renderScreen('summary')">
-              🛒 ${totalSelected > 0 ? `(${totalSelected})` : ''}
-            </button>
-          </div>
-        `;
-        renderProductsList(categoryId);
-        window.scrollTo({ top: 0, behavior: 'instant' });
-
-      } else if (screenName === 'summary') {
-        categoryScrollPosition = window.scrollY || document.documentElement.scrollTop;
-
-        document.getElementById('screen-summary').classList.add('active');
-        header.innerHTML = `
-          <button class="nav-btn secondary" onclick="renderScreen('categories', null, lastActiveCategoryCardId)">⬅️ Categorie</button>
-          <h1>🛒 Riepilogo Spesa</h1>
-          <div></div>
-        `;
-        renderSummaryList();
-        window.scrollTo({ top: 0, behavior: 'instant' });
-      }
-    }
-
-    function renderCategoriesList(highlightCatId = null) {
-      const container = document.getElementById('categories-container');
-      container.innerHTML = '';
-
-      const sortedCategories = [...appData].sort((a, b) => a.name.localeCompare(b.name, 'it', { sensitivity: 'base' }));
-
-      sortedCategories.forEach(cat => {
-        const selectedQty = cat.products.reduce((sum, p) => sum + (p.qty || 0), 0);
-        const hasSelected = selectedQty > 0;
-        const isHighlighted = highlightCatId === cat.id;
-
-        const itemDiv = document.createElement('div');
-        itemDiv.className = `category-item ${hasSelected ? 'has-selected' : ''} ${isHighlighted ? 'highlight-focus' : ''}`;
-        itemDiv.id = `cat-item-${cat.id}`;
-
-        itemDiv.innerHTML = `
-          <input type="number" 
-                 class="seq-input" 
-                 value="${cat.sequence}" 
-                 min="1" 
-                 placeholder="Seq"
-                 onkeyup="handleSeqKeyUp(event)"
-                 onchange="updateSequence('${cat.id}', this.value)"
-                 onclick="event.stopPropagation()">
-          <button class="cat-btn" onclick="renderScreen('products', '${cat.id}')">
-            <span>${cat.name}</span>
-            <span class="badge-qty">${selectedQty}</span>
-          </button>
-          <button class="icon-action-btn" title="Elimina Categoria
+      const dataStr = JSON.stringify
