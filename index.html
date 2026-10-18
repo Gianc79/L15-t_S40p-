@@ -445,7 +445,7 @@
 <body>
 
   <header id="main-header">
-    <h1>📋 Categorie (v1.10)</h1>
+    <h1>📋 Categorie (v1.11)</h1>
     <button class="nav-btn" onclick="renderScreen('summary')">🛒 Lista Spesa</button>
   </header>
 
@@ -458,9 +458,9 @@
         <div class="action-buttons-grid">
           <button class="nav-btn secondary" onclick="saveExistingFile()" title="Salva sovrascrivendo il file attivo">💾 Salva</button>
           <button class="nav-btn secondary" onclick="triggerImport()" title="Carica file esistente">📂 Importa</button>
+          <input type="file" id="import-file-input" style="display:none" accept=".json" onchange="importData(event)">
           <button class="nav-btn success" onclick="openAddCategoryModal()">➕ Nuova Categoria</button>
         </div>
-        <input type="file" id="import-file-input" style="display:none" accept=".json" onchange="importData(event)">
       </div>
       <div id="categories-container" class="category-list"></div>
     </section>
@@ -538,116 +538,3 @@
       { id: "cioccolato", name: "CIOCCOLATO", sequence: 4500, items: ["Cioccolato al latte", "Cioccolato fondente", "Uova di Pasqua", "Cacao Amaro"] },
       { id: "conservazione_alimenti", name: "CONSERVAZIONE ALIMENTI", sequence: 3500, items: ["Pellicola trasparente", "Carta alluminio", "Carta stagnola", "Vaschette alluminio", "Carta forno"] },
       { id: "creme_spalmabili", name: "CREME SPALMABILI", sequence: 1900, items: ["Burro di arachidi", "Nutella"] },
-      { id: "detersivi_biancheria", name: "DETERSIVI BIANCHERIA", sequence: 5400, items: ["Detersivo Bianchi", "Detersivo Scuri", "Detersivo Lana", "Vanish", "Ammorbidente", "Candeggina"] },
-      { id: "detersivi_piatti", name: "DETERSIVI PIATTI", sequence: 5300, items: ["Svelto", "Detersivo lavastoviglie", "Brillantante lavastoviglie"] },
-      { id: "formaggi_freschi", name: "FORMAGGI FRESCHI", sequence: 1100, items: ["Mozzarella", "Philadelphia", "Stracchino", "Robiola", "Spalmabili generici"] },
-      { id: "formaggi_fusi", name: "FORMAGGI FUSI", sequence: 1300, items: ["Sottilette", "Fettine", "Formaggini"] },
-      { id: "formaggi_stagionati", name: "FORMAGGI STAGIONATI", sequence: 1400, items: ["Parmigiano", "Grana", "Gorgonzola", "Emmenthal", "Leerdammer", "Fontal"] },
-      { id: "formaggio_grattugiato", name: "FORMAGGIO GRATTUGIATO", sequence: 1200, items: ["Formaggio grattugiato"] },
-      { id: "frutta", name: "FRUTTA", sequence: 300, items: ["Arance", "Banane", "Mele", "Pere", "Mandarini", "Kiwi", "Susine rosse", "Fragole", "Susine angeleno", "Albicocche", "Pesche gialle", "Pesche noci", "Meloni", "Mirtilli", "Ciliegie", "Pesche bianche", "Pesche Percoche", "Angurie", "Susine Metis", "Susine Stanley", "Uva Vittoria", "Susine gialle", "Uva Italia", "Mango", "Susine October Sun", "Castagne", "Pompelmi rosa"] },
-      { id: "frutta_disidratata", name: "FRUTTA DISIDRATATA", sequence: 900, items: ["Frutta disidratata", "Prugne secche", "Datteri"] },
-      { id: "frutta_in_scatola", name: "FRUTTA IN SCATOLA", sequence: 700, items: ["Macedonia", "Ananas a fette"] },
-      { id: "frutta_secca", name: "FRUTTA SECCA", sequence: 800, items: ["Noci", "Mandorle", "Arachidi", "Pistacchi"] },
-      { id: "gallette", name: "GALLETTE", sequence: 6900, items: ["Gallette"] },
-      { id: "gelati", name: "GELATI", sequence: 5500, items: ["Gelato sfuso", "Gelati confezionati"] },
-      { id: "ghiaccioli", name: "GHIACCIOLI", sequence: 5600, items: ["Ghiaccioli confezionati"] },
-      { id: "grassi_da_cucina", name: "GRASSI DA CUCINA", sequence: 2100, items: ["Burro", "Panna"] },
-      { id: "igiene_personale", name: "IGIENE PERSONALE", sequence: 5100, items: ["Sapone mani", "Sapone intimo", "Saponette Dove", "Dentifricio", "Deo ascelle", "Shampoo", "Shampoo Tinta", "Lamette Barba", "Schiuma Barba", "Crema dopobarba", "Assorbenti"] },
-      { id: "infusi", name: "INFUSI", sequence: 4300, items: ["The", "Tisane", "Camomilla"] },
-      { id: "latte", name: "LATTE", sequence: 2200, items: ["Latte", "Al Pro"] },
-      { id: "legumi_in_scatola", name: "LEGUMI IN SCATOLA", sequence: 2900, items: ["Ceci", "Fagioli", "Lenticchie", "Piselli", "Minestroni in scatola/lattina"] },
-      { id: "liquirizie", name: "LIQUIRIZIE", sequence: 4700, items: ["Liquirizie"] },
-      { id: "marmellata", name: "MARMELLATA", sequence: 1850, items: ["Marmellata"] },
-      { id: "merendine", name: "MERENDINE", sequence: 2700, items: ["Brioches confezionate", "Nesquik", "Pangoccioli"] },
-      { id: "miele", name: "MIELE", sequence: 2000, items: ["Miele"] },
-      { id: "monouso_e_stoviglie_usa_e_getta", name: "MONOUSO E STOVIGLIE USA E GETTA", sequence: 4950, items: ["Bicchieri di carta", "Piatti di carta", "Posate di plastica", "Tovaglioli", "Fazzoletti"] },
-      { id: "olio", name: "OLIO", sequence: 2800, items: ["Olio"] },
-      { id: "pane", name: "PANE", sequence: 6100, items: ["Pane fresco", "Pane a fette", "Fette biscottate", "Crackers", "Grissini", "Taralli", "Focacce", "Pizzette", "Piadine", "Pane alle olive", "Pane alle noci"] },
-      { id: "passate_di_pomodoro", name: "PASSATE DI POMODORO", sequence: 3800, items: ["Passata", "Polpa", "Verdurì"] },
-      { id: "pasta", name: "PASTA", sequence: 4100, items: ["Pasta confezionata", "Pasta fresca", "Minestre", "Polenta", "Cous cous", "Lasagne", "Gnocchi"] },
-      { id: "patatine", name: "PATATINE", sequence: 6300, items: ["Patatine"] },
-      { id: "pesce_fresco", name: "PESCE FRESCO", sequence: 500, items: ["Filetti di Salmone", "Merluzzo", "Branzino", "Tonno", "Ricciola"] },
-      { id: "pesce_in_scatola", name: "PESCE IN SCATOLA", sequence: 3900, items: ["Tonno sott'olio", "Sgombro sott'olio", "Sardine", "Alici"] },
-      { id: "pesce_surgelato", name: "PESCE SURGELATO", sequence: 5800, items: ["Vongole", "Sughi di pesce", "Bastoncini di merluzzo", "Mazzancolle", "Gamberetti"] },
-      { id: "pizze_surgelate", name: "PIZZE SURGELATE", sequence: 5700, items: ["Pizze", "Panzerotti"] },
-      { id: "pulizia_casa", name: "PULIZIA CASA", sequence: 5200, items: ["Deo ambienti", "Spugne", "Sgrassatori", "Panni Microfibra", "Deo WC", "Panni Vileda"] },
-      { id: "risotti_pronti", name: "RISOTTI PRONTI", sequence: 3100, items: ["Pescatora", "Milanese", "Tartufo", "Funghi"] },
-      { id: "sacchetti", name: "SACCHETTI", sequence: 100, items: ["Buste spesa", "Sacchetti frutta e verdura"] },
-      { id: "sale", name: "SALE", sequence: 4200, items: ["Sale fino", "Sale grosso"] },
-      { id: "salse", name: "SALSE", sequence: 3200, items: ["Maionese", "Salsa tonnata", "Insalata russa", "Insalata capricciosa"] },
-      { id: "scottex", name: "SCOTTEX", sequence: 4900, items: ["Scottex"] },
-      { id: "sottaceti", name: "SOTTACETI", sequence: 3300, items: ["Sottaceti", "Condiriso", "Olive", "Lupini"] },
-      { id: "spezie___dadi", name: "SPEZIE / DADI", sequence: 3400, items: ["Dadi", "Ariosto", "Rosmarino", "Aglio macinato", "Pepe", "Menta", "Erba cipollina", "Soffritto"] },
-      { id: "succhi_di_frutta", name: "SUCCHI DI FRUTTA", sequence: 600, items: ["Succhi di frutta", "Spremute"] },
-      { id: "sughi_pronti", name: "SUGHI PRONTI", sequence: 3600, items: ["Sugo al ragù", "Sugo alle noci", "Sugo ai formaggi", "Sugo al pomodoro", "Sugo al pesto"] },
-      { id: "torte_dolci", name: "TORTE, DOLCI", sequence: 5900, items: ["Torte", "Crostate", "Panettoni", "Colombe", "Calze Befana", "Pesticcini"] },
-      { id: "uova", name: "UOVA", sequence: 1800, items: ["Uova", "Albume liquido"] },
-      { id: "vegetali_proteici", name: "VEGETALI PROTEICI", sequence: 1500, items: ["Hamburger", "Falafel", "Polpette vegetali"] },
-      { id: "verdura_ortaggi", name: "VERDURA, ORTAGGI", sequence: 400, items: ["Spinaci", "Patate", "Finocchi", "Cavolfiore", "Carciofi", "Pomodori", "Cavolini", "Ravanelli", "Cappuccio", "Prezzemolo", "Cipolle", "Broccoletti", "Aglio", "Peperoni", "Melanzane", "Cetrioli", "Fagiolini", "Rucola", "Lattughino", "Asparagi", "Zucchine", "Carote", "Zenzero"] },
-      { id: "vino", name: "VINO", sequence: 6200, items: ["Vino Bianco", "Vino Rosso", "Prosecco", "Spumanti"] },
-      { id: "yogurt", name: "YOGURT", sequence: 2500, items: ["Yogurt", "Yogurt Greco"] },
-      { id: "zucchero", name: "ZUCCHERO", sequence: 3700, items: ["Zucchero semolato", "Zucchero di canna", "Stevia"] },
-      { id: "zuppe_pronte", name: "ZUPPE PRONTE", sequence: 200, items: ["Zuppe pronte", "Gazpacho"] }
-    ];
-
-    let appData = [];
-    let currentCategoryId = null;
-    let categoryScrollPosition = 0;
-    let lastActiveCategoryCardId = null;
-    let activeFileHandle = null;
-
-    function buildDefaultData() {
-      return DEFAULT_CATEGORIES.map(cat => ({
-        id: cat.id,
-        name: cat.name,
-        sequence: cat.sequence,
-        products: cat.items.map(item => ({ name: item, qty: 0 }))
-      }));
-    }
-
-    function loadData() {
-      try {
-        // Cerca prima nei dati correnti, poi esegue il fallback sulle versioni precedenti per non perdere nulla
-        const saved = localStorage.getItem('listaSpesaData_v11') || localStorage.getItem('listaSpesaData_v10') || localStorage.getItem('listaSpesaData_v9');
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            appData = parsed;
-          } else {
-            appData = buildDefaultData();
-          }
-        } else {
-          appData = buildDefaultData();
-          saveData();
-        }
-      } catch (e) {
-        appData = buildDefaultData();
-      }
-    }
-
-    function saveData() {
-      try {
-        localStorage.setItem('listaSpesaData_v11', JSON.stringify(appData));
-      } catch (e) {}
-    }
-
-    async function saveExistingFile() {
-      const dataStr = JSON.stringify(appData, null, 2);
-
-      if (activeFileHandle && window.showSaveFilePicker) {
-        try {
-          const writable = await activeFileHandle.createWritable();
-          await writable.write(dataStr);
-          await writable.close();
-          alert("File sovrascritto con successo!");
-          return;
-        } catch (err) {
-          activeFileHandle = null;
-        }
-      }
-
-      await saveAsNewFile();
-    }
-
-    async function saveAsNewFile() {
-      const dataStr = JSON.stringify
