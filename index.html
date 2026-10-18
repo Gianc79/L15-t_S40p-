@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ListaSpesa v1.9</title>
+  <title>ListaSpesa v1.11</title>
   <style>
     :root {
       --primary-color: #2c3e50;
@@ -445,7 +445,7 @@
 <body>
 
   <header id="main-header">
-    <h1>📋 Categorie (v1.9)</h1>
+    <h1>📋 Categorie (v1.11)</h1>
     <button class="nav-btn" onclick="renderScreen('summary')">🛒 Lista Spesa</button>
   </header>
 
@@ -457,7 +457,6 @@
         </div>
         <div class="action-buttons-grid">
           <button class="nav-btn secondary" onclick="saveExistingFile()" title="Salva sovrascrivendo il file attivo">💾 Salva</button>
-          <button class="nav-btn secondary" onclick="saveAsNewFile()" title="Salva con nome in un percorso">📝 Salva con nome</button>
           <button class="nav-btn secondary" onclick="triggerImport()" title="Carica file esistente">📂 Importa</button>
           <input type="file" id="import-file-input" style="display:none" accept=".json" onchange="importData(event)">
           <button class="nav-btn success" onclick="openAddCategoryModal()">➕ Nuova Categoria</button>
@@ -728,7 +727,7 @@
         const totalSelected = getTotalSelectedCount();
         
         header.innerHTML = `
-          <h1>📋 Categorie (v1.9)</h1>
+          <h1>📋 Categorie (v1.11)</h1>
           <button class="nav-btn" onclick="renderScreen('summary')">
             🛒 Lista Spesa ${totalSelected > 0 ? `(${totalSelected})` : ''}
           </button>
