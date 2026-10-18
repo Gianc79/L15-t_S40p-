@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ListaSpesa v1.9</title>
+  <title>ListaSpesa v1.10</title>
   <style>
     :root {
       --primary-color: #2c3e50;
@@ -128,7 +128,7 @@
 
     .action-buttons-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 8px;
     }
 
@@ -445,7 +445,7 @@
 <body>
 
   <header id="main-header">
-    <h1>📋 Categorie (v1.9)</h1>
+    <h1>📋 Categorie (v1.10)</h1>
     <button class="nav-btn" onclick="renderScreen('summary')">🛒 Lista Spesa</button>
   </header>
 
@@ -455,9 +455,8 @@
         <div class="action-bar-top">
           <span>Gestione Dati & Reparti</span>
         </div>
-        <div class="action-buttons-grid">
+        <div class="action-buttons-grid" style="grid-template-columns: repeat(3, 1fr);">
           <button class="nav-btn secondary" onclick="saveExistingFile()" title="Salva sovrascrivendo il file attivo">💾 Salva</button>
-          <button class="nav-btn secondary" onclick="saveAsNewFile()" title="Salva con nome in un percorso">📝 Salva con nome</button>
           <button class="nav-btn secondary" onclick="triggerImport()" title="Carica file esistente">📂 Importa</button>
           <input type="file" id="import-file-input" style="display:none" accept=".json" onchange="importData(event)">
           <button class="nav-btn success" onclick="openAddCategoryModal()">➕ Nuova Categoria</button>
@@ -595,7 +594,7 @@
     let currentCategoryId = null;
     let categoryScrollPosition = 0;
     let lastActiveCategoryCardId = null;
-    let activeFileHandle = null; // Gestione handle per sovrascrittura diretta
+    let activeFileHandle = null;
 
     function buildDefaultData() {
       return DEFAULT_CATEGORIES.map(cat => ({
@@ -608,7 +607,7 @@
 
     function loadData() {
       try {
-        const saved = localStorage.getItem('listaSpesaData_v10');
+        const saved = localStorage.getItem('listaSpesaData_v11');
         if (saved) {
           appData = JSON.parse(saved);
         } else {
@@ -622,11 +621,10 @@
 
     function saveData() {
       try {
-        localStorage.setItem('listaSpesaData_v10', JSON.stringify(appData));
+        localStorage.setItem('listaSpesaData_v11', JSON.stringify(appData));
       } catch (e) {}
     }
 
-    // 1) SALVA: Sovrascrive direttamente il file se l'utente lo ha già aperto/salvato in questa sessione. Altrimenti apre Salva con nome.
     async function saveExistingFile() {
       const dataStr = JSON.stringify(appData, null, 2);
 
@@ -643,11 +641,9 @@
         }
       }
 
-      // Se non c'è un file attivo di riferimento, procediamo con Salva con nome
       await saveAsNewFile();
     }
 
-    // 2) SALVA CON NOME: Apre sempre la finestra di dialogo per scegliere percorso e nome
     async function saveAsNewFile() {
       const dataStr = JSON.stringify(appData, null, 2);
 
@@ -664,18 +660,17 @@
           const writable = await activeFileHandle.createWritable();
           await writable.write(dataStr);
           await writable.close();
-          alert("Nuovo file salvato con successo!");
+          alert("File salvato con successo!");
           return;
         } catch (err) {
           if (err.name !== 'AbortError') {
             console.warn("API File System non disponibile, uso download.", err);
           } else {
-            return; // Annullato
+            return;
           }
         }
       }
 
-      // Fallback per browser senza supporto API
       try {
         const blob = new Blob([dataStr], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
@@ -705,7 +700,7 @@
             if (Array.isArray(imported)) {
               appData = imported;
               saveData();
-              activeFileHandle = null; // Resetta il file attivo
+              activeFileHandle = null;
               renderScreen('categories');
               alert("Dati importati con successo!");
             } else {
@@ -728,7 +723,7 @@
         const totalSelected = getTotalSelectedCount();
         
         header.innerHTML = `
-          <h1>📋 Categorie (v1.9)</h1>
+          <h1>📋 Categorie (v1.10)</h1>
           <button class="nav-btn" onclick="renderScreen('summary')">
             🛒 Lista Spesa ${totalSelected > 0 ? `(${totalSelected})` : ''}
           </button>
@@ -803,296 +798,4 @@
             <span>${cat.name}</span>
             <span class="badge-qty">${selectedQty}</span>
           </button>
-          <button class="icon-action-btn" title="Elimina Categoria" onclick="deleteCategory('${cat.id}')">🗑️</button>
-        `;
-
-        container.appendChild(itemDiv);
-      });
-
-      if (highlightCatId) {
-        setTimeout(() => {
-          const el = document.getElementById(`cat-item-${highlightCatId}`);
-          if (el) {
-            el.scrollIntoView({ behavior: 'instant', block: 'center' });
-          }
-        }, 50);
-      }
-    }
-
-    function handleSeqKeyUp(event) {
-      if (event.key === 'Enter' || event.keyCode === 13) {
-        event.target.blur();
-      }
-    }
-
-    function updateSequence(categoryId, newValue) {
-      const seqVal = parseInt(newValue, 10);
-      const cat = appData.find(c => c.id === categoryId);
-      if (cat && !isNaN(seqVal) && seqVal > 0) {
-        cat.sequence = seqVal;
-        saveData();
-      }
-    }
-
-    function deleteCategory(categoryId) {
-      const cat = appData.find(c => c.id === categoryId);
-      if (!cat) return;
-
-      if (confirm(`Sei sicuro di voler eliminare la categoria "${cat.name}" e tutti i suoi prodotti?`)) {
-        appData = appData.filter(c => c.id !== categoryId);
-        saveData();
-        renderCategoriesList();
-      }
-    }
-
-    function renderProductsList(categoryId) {
-      const container = document.getElementById('products-container');
-      container.innerHTML = '';
-
-      const cat = appData.find(c => c.id === categoryId);
-      if (!cat || !cat.products) return;
-
-      if (cat.products.length === 0) {
-        container.innerHTML = `<div class="empty-msg">Nessun prodotto in questa categoria.<br>Clicca ➕ in alto per aggiungerne uno!</div>`;
-        return;
-      }
-
-      cat.products.forEach((prod, index) => {
-        const prodDiv = document.createElement('div');
-        prodDiv.className = 'product-item';
-
-        prodDiv.innerHTML = `
-          <span class="product-name">${prod.name}</span>
-          <div class="stepper">
-            <button class="stepper-btn" onclick="changeQty('${categoryId}', ${index}, -1)">-</button>
-            <input type="number" 
-                   class="stepper-input" 
-                   value="${prod.qty || 0}" 
-                   min="0"
-                   onkeyup="handleSeqKeyUp(event)"
-                   onchange="setQty('${categoryId}', ${index}, this.value)">
-            <button class="stepper-btn" onclick="changeQty('${categoryId}', ${index}, 1)">+</button>
-          </div>
-          <button class="icon-action-btn" title="Elimina Prodotto" onclick="deleteProduct('${categoryId}', ${index})">🗑️</button>
-        `;
-
-        container.appendChild(prodDiv);
-      });
-    }
-
-    function changeQty(categoryId, prodIndex, delta) {
-      const cat = appData.find(c => c.id === categoryId);
-      if (cat && cat.products[prodIndex]) {
-        let newQty = (cat.products[prodIndex].qty || 0) + delta;
-        if (newQty < 0) newQty = 0;
-        cat.products[prodIndex].qty = newQty;
-        saveData();
-        renderProductsList(categoryId);
-        updateHeaderBadge();
-      }
-    }
-
-    function setQty(categoryId, prodIndex, val) {
-      const cat = appData.find(c => c.id === categoryId);
-      let parsed = parseInt(val, 10);
-      if (isNaN(parsed) || parsed < 0) parsed = 0;
-      if (cat && cat.products[prodIndex]) {
-        cat.products[prodIndex].qty = parsed;
-        saveData();
-        renderProductsList(categoryId);
-        updateHeaderBadge();
-      }
-    }
-
-    function deleteProduct(categoryId, prodIndex) {
-      const cat = appData.find(c => c.id === categoryId);
-      if (!cat || !cat.products[prodIndex]) return;
-
-      const prodName = cat.products[prodIndex].name;
-      if (confirm(`Vuoi eliminare il prodotto "${prodName}"?`)) {
-        cat.products.splice(prodIndex, 1);
-        saveData();
-        renderProductsList(categoryId);
-        updateHeaderBadge();
-      }
-    }
-
-    function renderSummaryList() {
-      const container = document.getElementById('summary-container');
-      container.innerHTML = '';
-
-      const activeCategories = appData.filter(cat => 
-        cat.products.some(p => p.qty > 0)
-      );
-
-      if (activeCategories.length === 0) {
-        container.innerHTML = `<div class="empty-msg">La lista della spesa è vuota.<br>Seleziona i prodotti nelle categorie!</div>`;
-        return;
-      }
-
-      activeCategories.sort((a, b) => Number(a.sequence) - Number(b.sequence));
-
-      activeCategories.forEach(cat => {
-        const groupDiv = document.createElement('div');
-        groupDiv.className = 'summary-group';
-
-        const selectedProducts = cat.products.filter(p => p.qty > 0);
-
-        let productsHTML = '';
-        selectedProducts.forEach((prod) => {
-          const isChecked = prod.checked ? 'checked' : '';
-          productsHTML += `
-            <div class="summary-item ${isChecked}" onclick="toggleCheckProduct('${cat.id}', '${escapeHtml(prod.name)}')">
-              <input type="checkbox" class="summary-checkbox" ${isChecked} onclick="event.stopPropagation(); toggleCheckProduct('${cat.id}', '${escapeHtml(prod.name)}')">
-              <div class="summary-details">
-                <span>${prod.name}</span>
-                <span class="summary-qty">x${prod.qty}</span>
-              </div>
-            </div>
-          `;
-        });
-
-        groupDiv.innerHTML = `
-          <div class="summary-header">
-            <span>${cat.name}</span>
-            <span class="seq-tag">Reparto ${cat.sequence}</span>
-          </div>
-          <div>${productsHTML}</div>
-        `;
-
-        container.appendChild(groupDiv);
-      });
-    }
-
-    function toggleCheckProduct(catId, prodName) {
-      const cat = appData.find(c => c.id === catId);
-      if (cat) {
-        const prod = cat.products.find(p => p.name === prodName);
-        if (prod) {
-          prod.checked = !prod.checked;
-          saveData();
-          renderSummaryList();
-        }
-      }
-    }
-
-    function clearAllQuantities() {
-      if (confirm("Vuoi davvero azzerare tutti i prodotti selezionati nella lista spesa?")) {
-        appData.forEach(cat => {
-          cat.products.forEach(p => {
-            p.qty = 0;
-            p.checked = false;
-          });
-        });
-        saveData();
-        renderSummaryList();
-      }
-    }
-
-    function openAddCategoryModal() {
-      document.getElementById('new-cat-name').value = '';
-      document.getElementById('new-cat-seq').value = '1000';
-      document.getElementById('modal-add-category').classList.add('active');
-    }
-
-    function saveNewCategory() {
-      const nameInput = document.getElementById('new-cat-name').value.trim();
-      const seqInput = parseInt(document.getElementById('new-cat-seq').value, 10);
-
-      if (!nameInput) {
-        alert("Inserisci un nome valido per la categoria.");
-        return;
-      }
-
-      const id = nameInput.toLowerCase().replace(/[^a-z0-9]/g, '_');
-      
-      if (appData.some(c => c.id === id)) {
-        alert("Una categoria con questo nome esiste già!");
-        return;
-      }
-
-      appData.push({
-        id: id,
-        name: nameInput.toUpperCase(),
-        sequence: isNaN(seqInput) ? 1000 : seqInput,
-        products: []
-      });
-
-      saveData();
-      closeModal('modal-add-category');
-      renderCategoriesList();
-    }
-
-    function openAddProductModal() {
-      document.getElementById('new-prod-name').value = '';
-      document.getElementById('modal-add-product').classList.add('active');
-    }
-
-    function saveNewProduct() {
-      const nameInput = document.getElementById('new-prod-name').value.trim();
-
-      if (!nameInput) {
-        alert("Inserisci un nome valido per il prodotto.");
-        return;
-      }
-
-      const cat = appData.find(c => c.id === currentCategoryId);
-      if (cat) {
-        if (cat.products.some(p => p.name.toLowerCase() === nameInput.toLowerCase())) {
-          alert("Questo prodotto esiste già in questa categoria!");
-          return;
-        }
-
-        cat.products.push({ name: nameInput, qty: 0 });
-        saveData();
-        closeModal('modal-add-product');
-        renderProductsList(currentCategoryId);
-        updateHeaderBadge();
-      }
-    }
-
-    function closeModal(modalId) {
-      document.getElementById(modalId).classList.remove('active');
-    }
-
-    function getTotalSelectedCount() {
-      return appData.reduce((total, cat) => {
-        return total + cat.products.reduce((sub, p) => sub + ((p.qty && p.qty > 0) ? 1 : 0), 0);
-      }, 0);
-    }
-
-    function updateHeaderBadge() {
-      const totalSelected = getTotalSelectedCount();
-      const badgeBtn = document.querySelector('header .nav-btn:last-child');
-      if (badgeBtn && badgeBtn.innerText.includes('🛒')) {
-        badgeBtn.innerText = `🛒 ${totalSelected > 0 ? `(${totalSelected})` : ''}`;
-      }
-    }
-
-    function handleScrollTopButton() {
-      const btnTop = document.getElementById('btn-top');
-      const isCategoriesActive = document.getElementById('screen-categories').classList.contains('active');
-      
-      if (isCategoriesActive && (window.scrollY || document.documentElement.scrollTop) > 300) {
-        btnTop.style.display = 'flex';
-      } else {
-        btnTop.style.display = 'none';
-      }
-    }
-
-    function scrollToTop() {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function escapeHtml(str) {
-      return str.replace(/'/g, "\\'");
-    }
-
-    window.addEventListener('DOMContentLoaded', () => {
-      loadData();
-      renderScreen('categories');
-      window.addEventListener('scroll', handleScrollTopButton);
-    });
-  </script>
-</body>
-</html>
+          <button class="icon-action-btn" title="Elimina Categoria
