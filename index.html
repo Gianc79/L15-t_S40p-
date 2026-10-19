@@ -472,7 +472,7 @@
   <header id="main-header">
     <div class="app-logo">
       <span>ListaSpesa</span>
-      <span class="version">(v. 1.13)</span>
+      <span class="version">(v. 1.14)</span>
     </div>
     <button class="nav-btn" onclick="renderScreen('summary')">🛒 Lista Spesa</button>
   </header>
@@ -1646,38 +1646,44 @@
     function renderScreen(screenName = 'categories', categoryId = null, highlightCatId = null) {
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
       const header = document.getElementById('main-header');
-
+    
       if (screenName === 'categories') {
         document.getElementById('screen-categories').classList.add('active');
         const totalSelected = getTotalSelectedCount();
-        
+    
         header.innerHTML = `
           <div class="app-logo">
             <span>ListaSpesa</span>
-            <span class="version">(v. 1.13)</span>
+            <span class="version">(v. 1.14)</span>
           </div>
           <button class="nav-btn" onclick="renderScreen('summary')">
             🛒 Lista Spesa ${totalSelected > 0 ? `(${totalSelected})` : ''}
           </button>
         `;
+    
         renderCategoriesList(highlightCatId);
-
+    
         if (categoryScrollPosition > 0) {
           window.scrollTo({ top: categoryScrollPosition, behavior: 'instant' });
         }
-
+    
       } else if (screenName === 'products') {
         categoryScrollPosition = window.scrollY || document.documentElement.scrollTop;
         currentCategoryId = categoryId;
         lastActiveCategoryCardId = categoryId;
-
+    
         document.getElementById('screen-products').classList.add('active');
         const cat = appData.find(c => c.id === categoryId);
         const totalSelected = getTotalSelectedCount();
-
+    
         header.innerHTML = `
-          <button class="nav-btn secondary" onclick="renderScreen('categories', null, '${cat ? cat.id : ''}')">⬅️ Categorie</button>
+          <button class="nav-btn secondary"
+            aria-label="Torna alle categorie"
+            title="Torna alle categorie"
+            onclick="renderScreen('categories', null, '${cat ? cat.id : ''}')">⬅️</button>
+    
           <h1>${cat ? cat.name : 'Prodotti'}</h1>
+    
           <div style="display:flex; gap:6px;">
             <button class="nav-btn success" onclick="openAddProductModal()">➕</button>
             <button class="nav-btn" onclick="renderScreen('summary')">
@@ -1685,21 +1691,27 @@
             </button>
           </div>
         `;
+    
         renderProductsList(categoryId);
         window.scrollTo({ top: 0, behavior: 'instant' });
-
+    
       } else if (screenName === 'summary') {
         categoryScrollPosition = window.scrollY || document.documentElement.scrollTop;
-
+    
         document.getElementById('screen-summary').classList.add('active');
+        const totalSelected = getTotalSelectedCount();
+    
         header.innerHTML = `
           <button class="nav-btn secondary"
             aria-label="Torna alle categorie"
             title="Torna alle categorie"
-            onclick="renderScreen('categories', null, '${cat ? cat.id : ''}')">⬅️</button>
-          <h1>🛒 Riepilogo Spesa</h1>
+            onclick="renderScreen('categories', null, lastActiveCategoryCardId)">⬅️</button>
+    
+          <h1>🛒 Lista Spesa ${totalSelected > 0 ? `(${totalSelected})` : ''}</h1>
+    
           <div></div>
         `;
+    
         renderSummaryList();
         window.scrollTo({ top: 0, behavior: 'instant' });
       }
@@ -1997,9 +2009,20 @@
 
     function updateHeaderBadge() {
       const totalSelected = getTotalSelectedCount();
-      const badgeBtn = document.querySelector('header .nav-btn:last-child');
-      if (badgeBtn && badgeBtn.innerText.includes('🛒')) {
-        badgeBtn.innerText = `🛒 ${totalSelected > 0 ? `(${totalSelected})` : ''}`;
+      const header = document.getElementById('main-header');
+      const activeScreen = document.querySelector('.screen.active')?.id;
+    
+      const badgeBtn = Array.from(header.querySelectorAll('.nav-btn'))
+        .find(btn => btn.innerText.includes('🛒'));
+    
+      if (!badgeBtn) return;
+    
+      if (activeScreen === 'screen-categories') {
+        badgeBtn.innerText =
+          `🛒 Lista Spesa ${totalSelected > 0 ? `(${totalSelected})` : ''}`;
+      } else {
+        badgeBtn.innerText =
+          `🛒 ${totalSelected > 0 ? `(${totalSelected})` : ''}`;
       }
     }
 
