@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ListaSpesa v. 1.16</title>
+  <title>ListaSpesa v. 1.17</title>
   <style>
     :root {
       --primary-color: #2c3e50;
@@ -482,7 +482,7 @@
   <header id="main-header">
     <div class="app-logo">
       <span>ListaSpesa</span>
-      <span class="version">(v. 1.16)</span>
+      <span class="version">(v. 1.17)</span>
     </div>
     <button class="nav-btn" onclick="renderScreen('summary')">
       <span class="cart-icon">🛒</span> Lista Spesa ${totalSelected > 0 ? `(${totalSelected})` : ''}
@@ -587,6 +587,7 @@
                   "Fragole",
                   "Kiwi",
                   "Lime",
+                  "Litchi"
                   "Mandarini",
                   "Mango",
                   "Mele",
@@ -639,15 +640,24 @@
             ]
       },
       {
+            "id": "funghi_freschi",
+            "name": "FUNGHI FRESCHI",
+            "sequence": 450,
+            "items": [
+                  "Funghi"
+            ]
+      },
+      {
             "id": "pesce_fresco",
             "name": "PESCE FRESCO",
             "sequence": 500,
             "items": [
-                  "Branzino",
-                  "Filetti di Salmone",
-                  "Merluzzo",
-                  "Ricciola",
-                  "Tonno"
+                  "Filetto di Branzino",
+                  "Filetto di Merluzzo",
+                  "Filetto di Orata"
+                  "Filetto di Ricciola",
+                  "Filetto di Salmone",
+                  "Filetto di Tonno"
             ]
       },
       {
@@ -697,14 +707,14 @@
                   "Bresaola",
                   "Coppa",
                   "Cotechino",
-                  "Cotto",
-                  "Crudo",
                   "Fesa di Tacchino",
                   "Finocchiona",
                   "Lardo",
                   "Lonzino",
                   "Mortadella",
                   "Pancetta",
+                  "Prosciutto Cotto"
+                  "Prosciutto Crudo"
                   "Salame",
                   "Salsiccia",
                   "Speck",
@@ -731,7 +741,9 @@
             "name": "FORMAGGIO GRATTUGIATO",
             "sequence": 1200,
             "items": [
-                  "Formaggio grattugiato"
+                  "Grana grattugiato",
+                  "Parmiggiano grattugiato",
+                  "Pecorino grattugiato"
             ]
       },
       {
@@ -755,7 +767,7 @@
                   "Gorgonzola",
                   "Grana",
                   "Leerdammer",
-                  "Parmigiano"
+                  "Parmiggiano"
             ]
       },
       {
@@ -862,8 +874,10 @@
             "sequence": 2300,
             "items": [
                   "Al Pro",
-                  "Bevanda avena",
-                  "Bevanda soia"
+                  "Bevanda Avena",
+                  "Bevanda Cocco",
+                  "Bevanda Mandorla",
+                  "Bevanda Soia"
             ]
       },
       {
@@ -925,8 +939,9 @@
             "sequence": 2900,
             "items": [
                   "Ceci",
-                  "Fagioli",
-                  "Hummus ceci",
+                  "Fagioli Borlotti",
+                  "Fagioli Cannellini",
+                  "Hummus di Ceci",
                   "Lenticchie",
                   "Minestroni in scatola/lattina",
                   "Piselli"
@@ -937,7 +952,8 @@
             "name": "ACETO / LIMONE",
             "sequence": 3000,
             "items": [
-                  "Aceto",
+                  "Aceto Bianco",
+                  "Aceto di Mele",
                   "Limone"
             ]
       },
@@ -946,10 +962,10 @@
             "name": "RISOTTI PRONTI",
             "sequence": 3100,
             "items": [
-                  "Funghi",
-                  "Milanese",
-                  "Pescatora",
-                  "Tartufo"
+                  "Ai Funghi",
+                  "Al Tartufo",
+                  "Alla Milanese",
+                  "Alla Pescatora"
             ]
       },
       {
@@ -957,10 +973,10 @@
             "name": "SALSE",
             "sequence": 3200,
             "items": [
-                  "Insalata capricciosa",
-                  "Insalata russa",
+                  "Insalata Capricciosa",
+                  "Insalata Russa",
                   "Maionese",
-                  "Salsa tonnata"
+                  "Salsa Tonnata"
             ]
       },
       {
@@ -969,7 +985,7 @@
             "sequence": 3300,
             "items": [
                   "Cetriolini",
-                  "Cipolle borettane",
+                  "Cipolle Borettane",
                   "Cipolline",
                   "Condiriso",
                   "Funghi sottaceto",
@@ -987,7 +1003,7 @@
                   "Aglio macinato",
                   "Ariosto",
                   "Dadi",
-                  "Erba cipollina",
+                  "Erba Cipollina",
                   "Menta",
                   "Pepe",
                   "Rosmarino",
@@ -999,10 +1015,11 @@
             "name": "CONSERVAZIONE ALIMENTI",
             "sequence": 3500,
             "items": [
-                  "Carta alluminio",
-                  "Carta da forno",
-                  "Pellicola trasparente",
-                  "Vaschette alluminio"
+                  "Carta Alluminio",
+                  "Carta da Forno",
+                  "Pellicola Trasparente",
+                  "Sacchetti Gelo 23x32",
+                  "Vaschette Alluminio"
             ]
       },
       {
@@ -1010,11 +1027,11 @@
             "name": "SUGHI PRONTI",
             "sequence": 3600,
             "items": [
-                  "Sugo ai formaggi",
-                  "Sugo al pesto",
-                  "Sugo al pomodoro",
-                  "Sugo al ragù",
-                  "Sugo alle noci"
+                  "Sugo ai Formaggi",
+                  "Sugo al Pesto",
+                  "Sugo al Pomodoro",
+                  "Sugo al Ragù",
+                  "Sugo alle Noci"
             ]
       },
       {
@@ -1023,8 +1040,8 @@
             "sequence": 3700,
             "items": [
                   "Stevia",
-                  "Zucchero di canna",
-                  "Zucchero semolato"
+                  "Zucchero di Canna",
+                  "Zucchero Semolato"
             ]
       },
       {
@@ -1086,8 +1103,8 @@
             "name": "SALE",
             "sequence": 4200,
             "items": [
-                  "Sale fino",
-                  "Sale grosso"
+                  "Sale Fino",
+                  "Sale Grosso"
             ]
       },
       {
@@ -1114,9 +1131,9 @@
             "sequence": 4500,
             "items": [
                   "Cacao Amaro",
-                  "Cioccolato al latte",
-                  "Cioccolato fondente",
-                  "Uova di Pasqua"
+                  "Cioccolato al Latte",
+                  "Cioccolato Fondente",
+                  "Uovo di Pasqua"
             ]
       },
       {
@@ -1159,10 +1176,12 @@
             "name": "MONOUSO E STOVIGLIE USA E GETTA",
             "sequence": 4950,
             "items": [
-                  "Bicchieri di carta",
-                  "Fazzoletti di carta",
-                  "Piatti di carta",
-                  "Posate di plastica",
+                  "Bicchieri di Carta",
+                  "Bicchieri di Plastica",
+                  "Fazzoletti di Carta",
+                  "Piatti di Carta",
+                  "Piatti di Plastica",
+                  "Posate di Plastica",
                   "Stuzzicadenti",
                   "Tovaglioli"
             ]
@@ -1172,7 +1191,7 @@
             "name": "CARTA IGIENICA",
             "sequence": 5000,
             "items": [
-                  "Carta igienica"
+                  "Carta Igienica"
             ]
       },
       {
@@ -1181,12 +1200,12 @@
             "sequence": 5100,
             "items": [
                   "Assorbenti Tena",
-                  "Crema dopobarba",
+                  "Crema Dopobarba",
                   "Dentifricio",
-                  "Deo ascelle",
+                  "Deo Ascelle",
                   "Lamette Barba",
-                  "Sapone intimo",
-                  "Sapone mani",
+                  "Sapone Intimo",
+                  "Sapone Mani",
                   "Saponette Dove",
                   "Schiuma Barba",
                   "Shampoo",
@@ -1198,7 +1217,7 @@
             "name": "PULIZIA CASA",
             "sequence": 5200,
             "items": [
-                  "Deo ambienti",
+                  "Deo Ambienti",
                   "Deo WC",
                   "Panni Microfibra",
                   "Panni Vileda",
@@ -1211,8 +1230,8 @@
             "name": "DETERSIVI PIATTI",
             "sequence": 5300,
             "items": [
-                  "Brillantante lavastoviglie",
-                  "Detersivo lavastoviglie",
+                  "Brillantante Lavastoviglie",
+                  "Detersivo Lavastoviglie",
                   "Svelto"
             ]
       },
@@ -1251,8 +1270,8 @@
             "name": "PIZZE SURGELATE",
             "sequence": 5700,
             "items": [
-                  "Panzerotti",
-                  "Pizze"
+                  "Panzerotti surgelati",
+                  "Pizza surgelata"
             ]
       },
       {
@@ -1260,10 +1279,10 @@
             "name": "PESCE SURGELATO",
             "sequence": 5800,
             "items": [
-                  "Bastoncini di merluzzo",
+                  "Bastoncini di Merluzzo",
                   "Gamberetti",
                   "Mazzancolle",
-                  "Sughi di pesce",
+                  "Sughi di Pesce",
                   "Vongole"
             ]
       },
@@ -1272,8 +1291,8 @@
             "name": "VERDURE SURGELATE",
             "sequence": 5850,
             "items": [
-                  "Mix di verdure",
-                  "Patate arrosto"
+                  "Mix di Verdure",
+                  "Patate Arrosto"
             ]
       },
       {
@@ -1359,7 +1378,7 @@
             "name": "BIBITE",
             "sequence": 6500,
             "items": [
-                  "Acqua tonica",
+                  "Acqua Tonica",
                   "Aranciata",
                   "Coca Cola",
                   "Ginger",
@@ -1367,7 +1386,7 @@
                   "Pompelmo",
                   "The Limone",
                   "The Pesca",
-                  "The verde"
+                  "The Verde"
             ]
       },
       {
@@ -1383,10 +1402,11 @@
             "name": "ALCOLICI",
             "sequence": 6700,
             "items": [
-                  "Alcol etilico alimentare",
+                  "Alcol Etilico Alimentare",
                   "Amaro",
                   "Gin",
                   "Grappa",
+                  "Limoncello",
                   "Rhum",
                   "Sambuca",
                   "Wiskhey"
@@ -1407,10 +1427,10 @@
             "name": "GALLETTE",
             "sequence": 6900,
             "items": [
-                  "Gallette grano saraceno",
-                  "Gallette lenticchie",
-                  "Gallette mais",
-                  "Gallette riso"
+                  "Gallette Grano Saraceno",
+                  "Gallette Lenticchie",
+                  "Gallette Mais",
+                  "Gallette Riso"
             ]
       },
       {
@@ -1666,7 +1686,7 @@
         header.innerHTML = `
           <div class="app-logo">
             <span>ListaSpesa</span>
-            <span class="version">(v. 1.16)</span>
+            <span class="version">(v. 1.17)</span>
           </div>
           <button class="nav-btn" onclick="renderScreen('summary')">
             <span class="cart-icon">🛒</span> Lista Spesa ${totalSelected > 0 ? `(${totalSelected})` : ''}
