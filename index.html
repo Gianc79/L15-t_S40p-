@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ListaSpesa v1.12</title>
+  <title>ListaSpesa v 1.13</title>
   <style>
     :root {
       --primary-color: #2c3e50;
@@ -54,6 +54,31 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+    }
+
+    /* LOGO APPLICAZIONE */
+    .app-logo {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      padding: 0 12px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.12);
+      color: #ffffff;
+      font-size: 0.95rem;
+      font-weight: 800;
+      letter-spacing: 0.2px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    
+    .app-logo .version {
+      margin-left: 5px;
+      font-size: 0.72rem;
+      font-weight: 500;
+      opacity: 0.8;
     }
 
     .nav-btn {
@@ -445,16 +470,16 @@
 <body>
 
   <header id="main-header">
-    <h1>📋 Categorie (v1.12)</h1>
+    <div class="app-logo">
+      <span>ListaSpesa</span>
+      <span class="version">(v. 1.13)</span>
+    </div>
     <button class="nav-btn" onclick="renderScreen('summary')">🛒 Lista Spesa</button>
   </header>
 
   <div class="container">
     <section id="screen-categories" class="screen active">
       <div class="action-bar">
-        <div class="action-bar-top">
-          <span>Gestione Dati & Reparti</span>
-        </div>
         <div class="action-buttons-grid">
           <button class="nav-btn secondary" onclick="saveExistingFile()" title="Salva sovrascrivendo il file attivo">💾 Salva</button>
           <button class="nav-btn secondary" onclick="saveAsNewFile()" title="Salva con nome in un percorso">📝 Salva con nome</button>
@@ -1517,7 +1542,7 @@
       } catch (e) {}
     }
 
-    // GESTIONE FILE - v1.12
+    // GESTIONE FILE 
     async function saveExistingFile() {
       const dataStr = JSON.stringify(appData, null, 2);
       if (activeFileHandle) {
@@ -1627,7 +1652,10 @@
         const totalSelected = getTotalSelectedCount();
         
         header.innerHTML = `
-          <h1>📋 Categorie (v1.12)</h1>
+          <div class="app-logo">
+            <span>ListaSpesa</span>
+            <span class="version">(v. 1.13)</span>
+          </div>
           <button class="nav-btn" onclick="renderScreen('summary')">
             🛒 Lista Spesa ${totalSelected > 0 ? `(${totalSelected})` : ''}
           </button>
@@ -1665,7 +1693,10 @@
 
         document.getElementById('screen-summary').classList.add('active');
         header.innerHTML = `
-          <button class="nav-btn secondary" onclick="renderScreen('categories', null, lastActiveCategoryCardId)">⬅️ Categorie</button>
+          <button class="nav-btn secondary"
+            aria-label="Torna alle categorie"
+            title="Torna alle categorie"
+            onclick="renderScreen('categories', null, '${cat ? cat.id : ''}')">⬅️</button>
           <h1>🛒 Riepilogo Spesa</h1>
           <div></div>
         `;
