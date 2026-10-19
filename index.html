@@ -465,6 +465,16 @@
       color: #a0aec0;
       font-size: 1rem;
     }
+    .cart-icon {
+      display: inline-block;
+      filter: grayscale(1) brightness(0) invert(1);
+    }
+    .app-logo {
+      color: #FFD700;
+      border: 1px solid #FFD700;
+      border-radius: 6px;
+      padding: 5px 8px;
+    }
   </style>
 </head>
 <body>
@@ -474,7 +484,9 @@
       <span>ListaSpesa</span>
       <span class="version">(v. 1.14)</span>
     </div>
-    <button class="nav-btn" onclick="renderScreen('summary')">🛒 Lista Spesa</button>
+    <button class="nav-btn" onclick="renderScreen('summary')">
+      <span class="cart-icon">🛒</span> Lista Spesa ${totalSelected > 0 ? `(${totalSelected})` : ''}
+    </button>
   </header>
 
   <div class="container">
@@ -1657,7 +1669,7 @@
             <span class="version">(v. 1.14)</span>
           </div>
           <button class="nav-btn" onclick="renderScreen('summary')">
-            🛒 Lista Spesa ${totalSelected > 0 ? `(${totalSelected})` : ''}
+            <span class="cart-icon">🛒</span> Lista Spesa ${totalSelected > 0 ? `(${totalSelected})` : ''}
           </button>
         `;
     
@@ -1687,7 +1699,7 @@
           <div style="display:flex; gap:6px;">
             <button class="nav-btn success" onclick="openAddProductModal()">➕</button>
             <button class="nav-btn" onclick="renderScreen('summary')">
-              🛒 ${totalSelected > 0 ? `(${totalSelected})` : ''}
+              <span class="cart-icon">🛒</span> ${totalSelected > 0 ? `(${totalSelected})` : ''}
             </button>
           </div>
         `;
@@ -1707,7 +1719,7 @@
             title="Torna alle categorie"
             onclick="renderScreen('categories', null, lastActiveCategoryCardId)">⬅️</button>
     
-          <h1>🛒 Lista Spesa ${totalSelected > 0 ? `(${totalSelected})` : ''}</h1>
+          <h1><span class="cart-icon">🛒</span> Lista Spesa ${totalSelected > 0 ? `(${totalSelected})` : ''}</h1>
     
           <div></div>
         `;
@@ -1929,8 +1941,10 @@
             p.checked = false;
           });
         });
+    
         saveData();
         renderSummaryList();
+        updateHeaderBadge();
       }
     }
 
@@ -2013,16 +2027,18 @@
       const activeScreen = document.querySelector('.screen.active')?.id;
     
       const badgeBtn = Array.from(header.querySelectorAll('.nav-btn'))
-        .find(btn => btn.innerText.includes('🛒'));
+        .find(btn => btn.querySelector('.cart-icon'));
     
       if (!badgeBtn) return;
     
+      const cartIcon = badgeBtn.querySelector('.cart-icon').outerHTML;
+    
       if (activeScreen === 'screen-categories') {
-        badgeBtn.innerText =
-          `🛒 Lista Spesa ${totalSelected > 0 ? `(${totalSelected})` : ''}`;
+        badgeBtn.innerHTML =
+          `${cartIcon} Lista Spesa ${totalSelected > 0 ? `(${totalSelected})` : ''}`;
       } else {
-        badgeBtn.innerText =
-          `🛒 ${totalSelected > 0 ? `(${totalSelected})` : ''}`;
+        badgeBtn.innerHTML =
+          `${cartIcon} ${totalSelected > 0 ? `(${totalSelected})` : ''}`;
       }
     }
 
