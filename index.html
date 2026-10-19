@@ -2026,6 +2026,17 @@
       const header = document.getElementById('main-header');
       const activeScreen = document.querySelector('.screen.active')?.id;
     
+      // Schermata Lista Spesa: aggiorna il contatore nel titolo H1
+      if (activeScreen === 'screen-summary') {
+        const title = header.querySelector('h1');
+        if (title) {
+          title.innerHTML =
+            `<span class="cart-icon">🛒</span> Lista Spesa ${totalSelected > 0 ? `(${totalSelected})` : ''}`;
+        }
+        return;
+      }
+    
+      // Schermate Categorie e Prodotti: aggiorna il contatore nel pulsante
       const badgeBtn = Array.from(header.querySelectorAll('.nav-btn'))
         .find(btn => btn.querySelector('.cart-icon'));
     
